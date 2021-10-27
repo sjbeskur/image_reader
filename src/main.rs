@@ -13,7 +13,6 @@ fn main()  {
 
     let file = &args[1];
 
-
     let now = Instant::now();
     let img = ImageReader::open(file).unwrap().decode().unwrap();
     println!("Image read time: {}(millis)", now.elapsed().as_millis());  
@@ -21,38 +20,33 @@ fn main()  {
     //  0.1 ms  =    100,000 ns	
     // 	0.01 ms =     10,000 ns
 
-    //println!("{:?}", img);
-    //let img2 = ImageReader::new(Cursor::new(bytes)).decode()?;
-//    img.save("empty.jpg").unwrap();
-
     let mut bytes: Vec<u8> = Vec::new();
     img.write_to(&mut bytes, image::ImageOutputFormat::Png).unwrap();
+    println!("Original image bytes: {}", bytes.len());
 
-    println!("original image bytes: {}", bytes.len());
-
-    let bytes2 = bytes.clone();
-
-    let mapped: Vec<u8> = bytes.into_iter()
-                    .filter(|x| x > &225)
-                    .collect();
-//    println!("{:?}", mapped);
-    println!("filtered image bytes: {}", mapped.len());
 
     let now = Instant::now();
 
-    let r: Vec<_> = bytes2.into_iter()
+    let threshold: u8 = 240;
+
+    // filter the image u8 pixels and retrieve only the index and values 
+    // where the values are greater than threshold
+    let iv: Vec<_> = bytes.into_iter()
                     .enumerate()
-                    .filter(|&(i,val)| val > 250)
+                    .filter(|&(_,val)| val > threshold)
                     .map(|(index,val)| (index, val))
                     .collect();
+
+    println!("filtered image bytes: {}\n", iv.len());
+
     println!("Filter time: {}(millis)", now.elapsed().as_millis());  
-
-    for (i,v) in r{
-        //println!("({}) ,", i)
-    }    
     
-    let v = [true, false, true];
 
+
+}
+
+fn sanity_check(){
+    let v = [true, false, true];
     let result: Vec<_> = v.iter()
         .enumerate()
         .filter(|&(_, &value)| !value )
@@ -60,7 +54,5 @@ fn main()  {
         .collect();
 
     println!("{:?}", result);
-    println!("Total time: {}(millis)", now.elapsed().as_millis());  
-
 
 }
